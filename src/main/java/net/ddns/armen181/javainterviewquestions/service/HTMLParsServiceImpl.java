@@ -15,6 +15,8 @@ import java.util.List;
 @Service
 public class HTMLParsServiceImpl implements HTMLParsService {
 
+    private List<Question> list = new ArrayList<>();
+
 
     @Override
     public String readStringFromFile(String paths) throws IOException {
@@ -30,45 +32,34 @@ public class HTMLParsServiceImpl implements HTMLParsService {
 
     @Override
     public List<Question> findQuestions(String paths) {
-        String data = "Error Reading";
-        try {
-            data = readStringFromFile(paths);
-            StringBuilder stringBuilder = new StringBuilder(data);
-            List<Question> list = new ArrayList<>();
-            boolean status = false;
-            int start = 0;
-            int end = 0;
-            while (!status) {
-
-
-
-                // === Finding Question ===
-                start = stringBuilder.indexOf("<h1 style=\"page-break-before:always; \"", end);
-
-                end = stringBuilder.indexOf("<h1 style=\"page-break-before:always; \"", start + 1);
-                if(start<0||end<0){
-                    status=true;
-                }else {
-
-                    StringBuilder sB = new StringBuilder(stringBuilder.substring(start + 39, end));
-
-                    // === Finding Title ===
-                   // System.out.println(sB.substring(sB.indexOf(">") + 1, sB.indexOf("</")));
-
-                    // === Finding Body ===
-                   // System.out.println(sB.substring(sB.indexOf("\n")));
-
-                    list.add(new Question(sB.substring(sB.indexOf(">") + 1, sB.indexOf("</")),sB.substring(sB.indexOf("\n"))));
+        if(list.isEmpty()) {
+            try {
+                StringBuilder stringBuilder = new StringBuilder(readStringFromFile(paths));
+                list = new ArrayList<>();
+                boolean status = false;
+                int start = 0;
+                int end = 0;
+                while (!status) {
+                    // === Finding Question ===
+                    start = stringBuilder.indexOf("<h1 style=\"page-break-before:always; \"", end);
+                    end = stringBuilder.indexOf("<h1 style=\"page-break-before:always; \"", start + 1);
+                    if (start < 0 || end < 0) {
+                        status = true;
+                    } else {
+                        StringBuilder sB = new StringBuilder(stringBuilder.substring(start + 39, end));
+                        list.add(new Question(sB.substring(sB.indexOf(">") + 1, sB.indexOf("</")), sB.substring(sB.indexOf("\n"))));
+                    }
                 }
+                System.out.println("HTML file parsed");
+                return list;
 
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("Error reading HTML file");
+                return null;
             }
-            System.out.println(list.size());
-
+        }else
             return list;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
 
 
     }
