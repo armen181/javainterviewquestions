@@ -1,16 +1,19 @@
 package net.ddns.armen181.javainterviewquestions.service;
 
 import net.ddns.armen181.javainterviewquestions.util.Question;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Service
 public class HTMLParsServiceImpl implements HTMLParsService {
@@ -19,20 +22,17 @@ public class HTMLParsServiceImpl implements HTMLParsService {
 
 
     @Override
-    public String readStringFromFile(String paths) throws IOException {
+    public String readStringFromFile(String path) throws IOException {
         String data = "Error Reading";
-        try {
-            data = new String(Files.readAllBytes(Paths.get(paths)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Resource resource = new ClassPathResource(path);
+        data = asString(resource);
         return data;
     }
 
 
     @Override
     public List<Question> findQuestions(String paths) {
-        if(list.isEmpty()) {
+        if (list.isEmpty()) {
             try {
                 StringBuilder stringBuilder = new StringBuilder(readStringFromFile(paths));
                 list = new ArrayList<>();
@@ -58,24 +58,17 @@ public class HTMLParsServiceImpl implements HTMLParsService {
                 System.out.println("Error reading HTML file");
                 return null;
             }
-        }else
+        } else
             return list;
 
 
     }
 
-
-    // == readFromInputStream ==
-    private String readFromInputStream(InputStream inputStream)
-            throws IOException {
-        StringBuilder resultStringBuilder = new StringBuilder();
-        try (BufferedReader br
-                     = new BufferedReader(new InputStreamReader(inputStream))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                resultStringBuilder.append(line).append("\n");
-            }
+    public static String asString(Resource resource) {
+        try (Reader reader = new InputStreamReader(resource.getInputStream(), UTF_8)) {
+            return FileCopyUtils.copyToString(reader);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        return resultStringBuilder.toString();
     }
 }

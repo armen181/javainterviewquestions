@@ -15,6 +15,8 @@ public class UtilController {
 
     private HTMLParsService htmlParsService;
 
+    private String path = "static/Top-1000-Java-converted.html";
+
     public UtilController(HTMLParsService htmlParsService) {
 
         this.htmlParsService = htmlParsService;
@@ -23,14 +25,14 @@ public class UtilController {
 
     @GetMapping("/getById")
     public Question getById(@RequestHeader int id) {
-        return htmlParsService.findQuestions("/home/armen-pc/Desktop/1000_Q/Top-1000-Java-converted.html").get(id);
+        return htmlParsService.findQuestions(path).get(id);
 
     }
     @GetMapping("/getByRandom")
     public Question getByRandom() {
 
-        return htmlParsService.findQuestions("/home/armen-pc/Desktop/1000_Q/Top-1000-Java-converted.html").get(
-                rand.nextInt(htmlParsService.findQuestions("/home/armen-pc/Desktop/1000_Q/Top-1000-Java-converted.html").size() + 1)
+        return htmlParsService.findQuestions(path).get(
+                rand.nextInt(htmlParsService.findQuestions(path).size() + 1)
         );
 
     }
